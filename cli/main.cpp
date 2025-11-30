@@ -1,3 +1,3 @@
-import example.Alpha;
+import example;
 
 int main() { example::alpha(); }
