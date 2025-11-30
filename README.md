@@ -2,6 +2,8 @@
 
 I could not find good examples, so I wrote this.
 
+If something is not right, send patch.
+
 > [!NOTE]
 >
 > [GCC bug 122625](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=122625) prevents
@@ -13,6 +15,8 @@ I could not find good examples, so I wrote this.
 > See `https://github.com/Kitware/CMake/blob/v${cmake_version}/Help/dev/experimental.rst`
 > and set `CMAKE_EXPERIMENTAL_CXX_IMPORT_STD` accordingly in the root
 > `CMakeLists.txt` before using.
+
+This example has a library-based design:
 
 ```
 .
