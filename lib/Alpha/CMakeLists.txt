@@ -1,1 +1,5 @@
-add_example_library(Alpha Mod.ixx Impl.cpp)
+add_example_library(Alpha
+    PUBLIC
+        Alpha.ixx
+    PRIVATE
+        Impl.cpp)

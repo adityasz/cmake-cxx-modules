@@ -1,20 +1,22 @@
 cmake_minimum_required(VERSION 3.31)
 
+# This varies with cmake version.
+# See https://github.com/Kitware/CMake/blob/v${cmake_version}/Help/dev/experimental.rst
 set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "0e5b6991-d74f-4b3d-a41c-cf096e0b2508")
 
-# Fedora compiles clang with libstdc++ as the default stdlib
-# cmake does not like it when using modules (neither do I: GCC bug 122625)
+# Fedora compiles clang with libstdc++ as the default stdlib. CMake wants libc++.
+# Also, libstdc++ is broken in gcc 15.2.1: See GCC bug 122625.
 execute_process(
-	COMMAND ${CMAKE_COMMAND} -E echo "#include <iso646.h>"
-	COMMAND ${CMAKE_CXX_COMPILER} -E -dM -x c++ -
-	OUTPUT_VARIABLE _CXX_MACROS
-	RESULT_VARIABLE _CXX_STDLIB_CHECK_RESULT
+    COMMAND ${CMAKE_COMMAND} -E echo "#include <iso646.h>"
+    COMMAND ${CMAKE_CXX_COMPILER} -E -dM -x c++ -
+    OUTPUT_VARIABLE _CXX_MACROS
+    RESULT_VARIABLE _CXX_STDLIB_CHECK_RESULT
 )
 if (NOT _CXX_STDLIB_CHECK_RESULT EQUAL 0)
-	message(FATAL_ERROR "Failed to detect the default C++ standard library configuration.")
+    message(FATAL_ERROR "Failed to detect the default C++ standard library configuration.")
 endif ()
 if (NOT _CXX_MACROS MATCHES "#define _LIBCPP_VERSION")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 endif ()
 
 project(Example VERSION 0.1 LANGUAGES CXX)
@@ -24,35 +26,50 @@ set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 macro(add_example_library target_name)
-	add_library(Alpha OBJECT)
+    add_library(${target_name} OBJECT)
 
-	set(__modules)
-	set(__sources)
+    set(__scope PUBLIC)
+    set(__pub_modules)
+    set(__priv_modules)
+    set(__pub_sources)
+    set(__priv_sources)
 
-	foreach(__file ${ARGN})
-		if(__file MATCHES "\.ixx$")
-			list(APPEND __modules "${CMAKE_SOURCE_DIR}/modules/example/${target_name}/${__file}")
-		else()
-			list(APPEND __sources "${CMAKE_CURRENT_SOURCE_DIR}/${__file}")
-		endif()
-	endforeach()
+    foreach(__arg ${ARGN})
+        if(__arg STREQUAL "PUBLIC")
+            set(__scope PUBLIC)
+        elseif(__arg STREQUAL "PRIVATE")
+            set(__scope PRIVATE)
+        elseif(__arg MATCHES "\.ixx$")
+            if(__scope STREQUAL "PUBLIC")
+                list(APPEND __pub_modules "${CMAKE_SOURCE_DIR}/modules/example/${__arg}")
+            else()
+                list(APPEND __priv_modules "${__arg}")
+            endif()
+        else()
+            if(__scope STREQUAL "PUBLIC")
+                list(APPEND __pub_sources "${__arg}")
+            else()
+                list(APPEND __priv_sources "${__arg}")
+            endif()
+        endif()
+    endforeach()
 
-	# Not sure if the syntax is correct. I want the file set name to begin with
-	# an underscore but that is not allowed. Omitting <set> and TYPE (and
-	# directly specifying <type> after FILE_SET) works for some reason despite
-	# the docs saying otherwise:
-	# target_sources(<target>
-	# 	[<INTERFACE|PUBLIC|PRIVATE>
-	# 	[FILE_SET <set> [TYPE <type>] [BASE_DIRS <dirs>...] [FILES <files>...]]...
-	# 	]...)
-	target_sources(${target_name}
-		PUBLIC
-			FILE_SET CXX_MODULES
-			BASE_DIRS ${CMAKE_SOURCE_DIR}/modules
-			FILES ${__modules}
-		PRIVATE
-			${__sources}
-	)
+    target_sources(${target_name}
+        PUBLIC
+            ${__pub_sources}
+        PUBLIC
+            FILE_SET modules_${target_name}_
+            TYPE CXX_MODULES
+            BASE_DIRS ${CMAKE_SOURCE_DIR}/modules/example
+            FILES ${__pub_modules}
+        PRIVATE
+            ${__priv_sources}
+        PRIVATE
+            FILE_SET priv_modules_${target_name}_
+            TYPE CXX_MODULES
+            BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
+            FILES ${__priv_modules}
+    )
 endmacro()
 
 add_subdirectory(lib)

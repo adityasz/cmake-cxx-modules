@@ -1,3 +1,4 @@
+import std;
 import example;
 
-int main() { example::alpha(); }
+int main() { std::println("{}", example::bravo()); }

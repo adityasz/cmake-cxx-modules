@@ -8,4 +8,8 @@ target_sources(example
 		FILES ${CMAKE_SOURCE_DIR}/modules/example/Mod.ixx
 ) # so that `import example;` imports every library
 
-target_link_libraries(example PRIVATE Alpha)
+target_link_libraries(example
+    PRIVATE
+		Alpha
+		Bravo
+)
