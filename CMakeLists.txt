@@ -12,8 +12,6 @@ execute_process(
     OUTPUT_VARIABLE _CXX_MACROS
     RESULT_VARIABLE _CXX_STDLIB_RESULT
 )
-message(STATUS Output: ${_CXX_MACROS})
-message(STATUS Return code: ${_CXX_STDLIB_RESULT})
 if (NOT _CXX_STDLIB_RESULT EQUAL 0)
     message(FATAL_ERROR "Failed to detect the default C++ standard library configuration.")
 endif ()
