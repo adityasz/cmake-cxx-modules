@@ -5,14 +5,16 @@ cmake_minimum_required(VERSION 3.31)
 set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "0e5b6991-d74f-4b3d-a41c-cf096e0b2508")
 
 # Fedora compiles clang with libstdc++ as the default stdlib. CMake wants libc++.
-# Also, libstdc++ is broken in gcc 15.2.1: See GCC bug 122625.
+# Also, std.cc is broken in gcc 15.2.1: See GCC bug 122625.
 execute_process(
-    COMMAND ${CMAKE_COMMAND} -E echo "#include <iso646.h>"
+    COMMAND echo "#include <ciso646>"
     COMMAND ${CMAKE_CXX_COMPILER} -E -dM -x c++ -
     OUTPUT_VARIABLE _CXX_MACROS
-    RESULT_VARIABLE _CXX_STDLIB_CHECK_RESULT
+    RESULT_VARIABLE _CXX_STDLIB_RESULT
 )
-if (NOT _CXX_STDLIB_CHECK_RESULT EQUAL 0)
+message(STATUS Output: ${_CXX_MACROS})
+message(STATUS Return code: ${_CXX_STDLIB_RESULT})
+if (NOT _CXX_STDLIB_RESULT EQUAL 0)
     message(FATAL_ERROR "Failed to detect the default C++ standard library configuration.")
 endif ()
 if (NOT _CXX_MACROS MATCHES "#define _LIBCPP_VERSION")
@@ -34,25 +36,25 @@ macro(add_example_library target_name)
     set(__pub_sources)
     set(__priv_sources)
 
-    foreach(__arg ${ARGN})
-        if(__arg STREQUAL "PUBLIC")
+    foreach (__arg ${ARGN})
+        if (__arg STREQUAL "PUBLIC")
             set(__scope PUBLIC)
-        elseif(__arg STREQUAL "PRIVATE")
+        elseif (__arg STREQUAL "PRIVATE")
             set(__scope PRIVATE)
-        elseif(__arg MATCHES "\.ixx$")
-            if(__scope STREQUAL "PUBLIC")
+        elseif (__arg MATCHES "\.ixx$")
+            if (__scope STREQUAL "PUBLIC")
                 list(APPEND __pub_modules "${CMAKE_SOURCE_DIR}/modules/example/${__arg}")
-            else()
+            else ()
                 list(APPEND __priv_modules "${__arg}")
-            endif()
-        else()
-            if(__scope STREQUAL "PUBLIC")
+            endif ()
+        else ()
+            if (__scope STREQUAL "PUBLIC")
                 list(APPEND __pub_sources "${__arg}")
-            else()
+            else ()
                 list(APPEND __priv_sources "${__arg}")
-            endif()
-        endif()
-    endforeach()
+            endif ()
+        endif ()
+    endforeach ()
 
     target_sources(${target_name}
         PUBLIC

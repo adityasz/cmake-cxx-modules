@@ -1,2 +1,2 @@
-add_subdirectory(Alpha)
-add_subdirectory(Bravo)
+add_subdirectory(Greeter)
+add_subdirectory(Introducer)
