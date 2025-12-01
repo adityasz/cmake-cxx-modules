@@ -2,19 +2,7 @@
 
 I could not find good examples, so I wrote this.
 
-If something is not right, send patch.
-
-> [!NOTE]
->
-> [GCC bug 122625](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=122625) prevents
-> me from using it. GCC 15.3 (unreleased) will have the fix. This project
-> currently only supports clang. Tested only on Linux with clang 21.1 and CMake
-> 3.31.6.
->
-> Modules are still experimental in CMake.
-> See `https://github.com/Kitware/CMake/blob/v${cmake_version}/Help/dev/experimental.rst`
-> and set `CMAKE_EXPERIMENTAL_CXX_IMPORT_STD` accordingly in the root
-> `CMakeLists.txt` before using.
+If something is not right, send a patch.
 
 This example has a library-based design:
 
@@ -39,3 +27,19 @@ This example has a library-based design:
     ├── CMakeLists.txt
     └── main.cpp
 ```
+
+> [!NOTE]
+>
+> [GCC bug 122625](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=122625) prevents
+> me from using it. GCC 15.3 (unreleased) will have the fix. This project
+> currently only supports clang. Tested only on Linux with clang 21.1 and CMake
+> 3.31.6.
+>
+> Modules are still experimental in CMake.
+> See `https://github.com/Kitware/CMake/blob/v${cmake_version}/Help/dev/experimental.rst`
+> and set `CMAKE_EXPERIMENTAL_CXX_IMPORT_STD` accordingly in the root
+> `CMakeLists.txt` before using.
+
+> [!WARNING]
+>
+> Even clang has [issues](https://github.com/llvm/llvm-project/issues/170099).
