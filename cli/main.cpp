@@ -3,4 +3,4 @@ import example;
 
 using namespace example;
 
-int main() { std::println("{}", c::one() * d::two()); }
+int main() { std::println("{}", c::one() * d::two(d::S1{}, c::S1{})); }

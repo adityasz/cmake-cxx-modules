@@ -1,11 +1,11 @@
 module example.c.two;
 
-import example.b;
+import example.b.two;
 
 namespace example {
 namespace c {
 
-int two() { return b::two(); }
+int two(b::S2) { return b::two(); }
 
 } // namespace c
 } // namespace example

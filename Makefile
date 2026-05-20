@@ -113,13 +113,13 @@ $(OBJ_DIR)/modules/example/B/two.o $(EXAMPLE_B_TWO_BMI) &: modules/example/B/two
 $(OBJ_DIR)/modules/example/C/one.o $(EXAMPLE_C_ONE_BMI) &: modules/example/C/one.ixx $(MODULE_MAPPER) | $(DIR_STAMP)
 	$(CXX) $(CXXFLAGS) $(MODULE_FLAGS) -x c++ -c $< -o $(OBJ_DIR)/modules/example/C/one.o
 
-$(OBJ_DIR)/modules/example/C/two.o $(EXAMPLE_C_TWO_BMI) &: modules/example/C/two.ixx $(MODULE_MAPPER) | $(DIR_STAMP)
+$(OBJ_DIR)/modules/example/C/two.o $(EXAMPLE_C_TWO_BMI) &: modules/example/C/two.ixx $(MODULE_MAPPER) $(EXAMPLE_B_TWO_BMI) | $(DIR_STAMP)
 	$(CXX) $(CXXFLAGS) $(MODULE_FLAGS) -x c++ -c $< -o $(OBJ_DIR)/modules/example/C/two.o
 
-$(OBJ_DIR)/modules/example/D/one.o $(EXAMPLE_D_ONE_BMI) &: modules/example/D/one.ixx $(MODULE_MAPPER) | $(DIR_STAMP)
+$(OBJ_DIR)/modules/example/D/one.o $(EXAMPLE_D_ONE_BMI) &: modules/example/D/one.ixx $(MODULE_MAPPER) $(EXAMPLE_A_ONE_BMI) | $(DIR_STAMP)
 	$(CXX) $(CXXFLAGS) $(MODULE_FLAGS) -x c++ -c $< -o $(OBJ_DIR)/modules/example/D/one.o
 
-$(OBJ_DIR)/modules/example/D/two.o $(EXAMPLE_D_TWO_BMI) &: modules/example/D/two.ixx $(MODULE_MAPPER) | $(DIR_STAMP)
+$(OBJ_DIR)/modules/example/D/two.o $(EXAMPLE_D_TWO_BMI) &: modules/example/D/two.ixx $(MODULE_MAPPER) $(EXAMPLE_D_ONE_BMI) $(EXAMPLE_C_BMI) | $(DIR_STAMP)
 	$(CXX) $(CXXFLAGS) $(MODULE_FLAGS) -x c++ -c $< -o $(OBJ_DIR)/modules/example/D/two.o
 
 $(OBJ_DIR)/modules/example/A/a.o $(EXAMPLE_A_BMI) &: modules/example/A/a.ixx $(MODULE_MAPPER) $(EXAMPLE_A_ONE_BMI) $(EXAMPLE_A_TWO_BMI) | $(DIR_STAMP)
@@ -134,7 +134,7 @@ $(OBJ_DIR)/modules/example/C/c.o $(EXAMPLE_C_BMI) &: modules/example/C/c.ixx $(M
 $(OBJ_DIR)/modules/example/D/d.o $(EXAMPLE_D_BMI) &: modules/example/D/d.ixx $(MODULE_MAPPER) $(EXAMPLE_D_ONE_BMI) $(EXAMPLE_D_TWO_BMI) | $(DIR_STAMP)
 	$(CXX) $(CXXFLAGS) $(MODULE_FLAGS) -x c++ -c $< -o $(OBJ_DIR)/modules/example/D/d.o
 
-$(OBJ_DIR)/modules/example.o $(EXAMPLE_BMI) &: modules/example.ixx $(MODULE_MAPPER) $(EXAMPLE_A_BMI) $(EXAMPLE_B_BMI) $(EXAMPLE_C_BMI) $(EXAMPLE_D_BMI) | $(DIR_STAMP)
+$(OBJ_DIR)/modules/example.o $(EXAMPLE_BMI) &: modules/example/example.ixx $(MODULE_MAPPER) $(EXAMPLE_A_BMI) $(EXAMPLE_B_BMI) $(EXAMPLE_C_BMI) $(EXAMPLE_D_BMI) | $(DIR_STAMP)
 	$(CXX) $(CXXFLAGS) $(MODULE_FLAGS) -x c++ -c $< -o $(OBJ_DIR)/modules/example.o
 
 $(OBJ_DIR)/lib/A/one.o: lib/A/one.cpp $(MODULE_MAPPER) $(EXAMPLE_A_ONE_BMI) | $(DIR_STAMP)
@@ -152,33 +152,33 @@ $(OBJ_DIR)/lib/B/two.o: lib/B/two.cpp $(MODULE_MAPPER) $(EXAMPLE_B_TWO_BMI) | $(
 $(OBJ_DIR)/lib/C/one.o: lib/C/one.cpp $(MODULE_MAPPER) $(EXAMPLE_C_ONE_BMI) $(EXAMPLE_B_BMI) | $(DIR_STAMP)
 	$(CXX) $(CXXFLAGS) $(MODULE_FLAGS) -c $< -o $@
 
-$(OBJ_DIR)/lib/C/two.o: lib/C/two.cpp $(MODULE_MAPPER) $(EXAMPLE_C_TWO_BMI) $(EXAMPLE_B_BMI) | $(DIR_STAMP)
+$(OBJ_DIR)/lib/C/two.o: lib/C/two.cpp $(MODULE_MAPPER) $(EXAMPLE_C_TWO_BMI) $(EXAMPLE_B_BMI) $(EXAMPLE_B_TWO_BMI) | $(DIR_STAMP)
 	$(CXX) $(CXXFLAGS) $(MODULE_FLAGS) -c $< -o $@
 
-$(OBJ_DIR)/lib/D/one.o: lib/D/one.cpp $(MODULE_MAPPER) $(EXAMPLE_D_ONE_BMI) $(EXAMPLE_A_BMI) $(EXAMPLE_B_BMI) | $(DIR_STAMP)
+$(OBJ_DIR)/lib/D/one.o: lib/D/one.cpp $(MODULE_MAPPER) $(EXAMPLE_D_ONE_BMI) $(EXAMPLE_A_BMI) | $(DIR_STAMP)
 	$(CXX) $(CXXFLAGS) $(MODULE_FLAGS) -c $< -o $@
 
-$(OBJ_DIR)/lib/D/two.o: lib/D/two.cpp $(MODULE_MAPPER) $(EXAMPLE_D_TWO_BMI) $(EXAMPLE_A_BMI) $(EXAMPLE_B_BMI) | $(DIR_STAMP)
+$(OBJ_DIR)/lib/D/two.o: lib/D/two.cpp $(MODULE_MAPPER) $(EXAMPLE_D_TWO_BMI) $(EXAMPLE_A_BMI) $(EXAMPLE_B_BMI) $(EXAMPLE_D_ONE_BMI) $(EXAMPLE_C_BMI) | $(DIR_STAMP)
 	$(CXX) $(CXXFLAGS) $(MODULE_FLAGS) -c $< -o $@
 
 $(OBJ_DIR)/cli/main.o: cli/main.cpp $(MODULE_MAPPER) $(STD_BMI) $(EXAMPLE_BMI) | $(DIR_STAMP)
 	$(CXX) $(CXXFLAGS) $(MODULE_FLAGS) -c $< -o $@
 
 $(MODULE_MAPPER): Makefile | $(DIR_STAMP)
-	printf '%s\n' \
-	  '$$root $(GCM_DIR)' \
-	  'std std.gcm' \
-	  'example example.gcm' \
-	  'example.a example.a.gcm' \
+	printf '%s\n'                       \
+	  '$$root $(GCM_DIR)'               \
+	  'std std.gcm'                     \
+	  'example example.gcm'             \
+	  'example.a example.a.gcm'         \
 	  'example.a.one example.a.one.gcm' \
 	  'example.a.two example.a.two.gcm' \
-	  'example.b example.b.gcm' \
+	  'example.b example.b.gcm'         \
 	  'example.b.one example.b.one.gcm' \
 	  'example.b.two example.b.two.gcm' \
-	  'example.c example.c.gcm' \
+	  'example.c example.c.gcm'         \
 	  'example.c.one example.c.one.gcm' \
 	  'example.c.two example.c.two.gcm' \
-	  'example.d example.d.gcm' \
+	  'example.d example.d.gcm'         \
 	  'example.d.one example.d.one.gcm' \
 	  'example.d.two example.d.two.gcm' \
 	  > $@
