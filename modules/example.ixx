@@ -1,4 +1,6 @@
 export module example;
 
-export import example.Greeter;
-export import example.Introducer;
+export import example.a;
+export import example.b;
+export import example.c;
+export import example.d;

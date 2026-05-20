@@ -1,4 +1,6 @@
 import std;
 import example;
 
-int main() { std::println("{}", example::introduce("Foo")); }
+using namespace example;
+
+int main() { std::println("{}", c::one() * d::two()); }
